@@ -1,0 +1,113 @@
+library(NLP)
+library(tm)
+library(RColorBrewer)
+library(wordcloud)
+library(pdftools)
+
+
+
+#reading documnets from folder
+ 
+folder="C:/Users/MURARI/Desktop/papers"
+filelist=list.files(path=folder, pattern="*.pdf")
+filelist=paste(folder, "//", sep="",filelist)
+filelist
+
+
+#reading pdf files and creating corpus
+
+	Rpdf <- readPDF(control = list(text = "-layout"))
+	txt=Corpus(URISource(filelist), readerControl=list(reader=Rpdf))
+
+
+	
+	txt
+
+#preprocessing
+
+	 txt.tdm <- TermDocumentMatrix(txt, control = list(removePunctuation = TRUE,
+                                          	                stopwords = TRUE,
+                                                   	        tolower = TRUE,
+                                             	     	        stemming = TRUE,
+                                                      		 removeNumbers = TRUE))
+#to see preprocessing data
+		
+		fix(txt.tdm)
+
+
+		
+
+
+
+#termdocument matrix
+
+	freq=rowSums(as.matrix(txt.tdm))
+	head(freq,100)
+	tail(freq,100)  
+
+#freqentterms
+	findFreqTerms(txt.tdm, lowfreq = 100, highfreq = Inf)
+	ft <- findFreqTerms(txt.tdm, lowfreq = 100, highfreq = Inf)
+	as.matrix(txt.tdm[ft,])
+	
+#ploting
+	plot(sort(freq, decreasing = T),col="blue",main="Word TF-IDF frequencies", xlab="TF-IDF-based rank", ylab = "TF-IDF")
+
+
+#wordcloud
+
+	wordcloud(head(names(freq),1000),head(freq,1000),scale=c(2,1),col=rainbow(7))
+
+# find the term frequency value 
+	tf <- as.matrix(txt.tdm)
+
+
+# inversse document frequency value
+
+	idf <- log(ncol(tf)/(1+rowSums(tf!=0))) 
+
+	idf <- diag(idf)
+
+
+	tf_idf <-crossprod(tf,idf)
+
+   	colnames(tf_idf) <-rownames(tf)
+	
+	tf_idf = tf_idf / sqrt(rowSums(tf_idf^2)) 
+	fix(tf_idf)
+
+#to konw how many terms in all documents
+
+	txt.tdm
+	
+	a=tf_idf[1,1:1000]
+ 	b=tf_idf[2,1:1000]
+ 	c=tf_idf[3,1:10]
+	
+	
+
+#cosine value and similarity
+	l <- list( numerator = sum(a * b), denominator = sqrt( sum(a ^ 2) ) * sqrt( sum(b ^ 2) ) )
+
+	list( cosine = l$numerator / l$denominator, degree = acos(l$numerator / l$denominator) * 180 / pi )
+
+	
+	l <- list( numerator = sum(a * c), denominator = sqrt( sum()a ^ 2) ) * sqrt( sum(c ^ 2) ) )
+
+	list( cosine = l$numerator / l$denominator, degree = acos(l$numerator / l$denominator) * 180 / pi )
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
